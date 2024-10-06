@@ -34,9 +34,10 @@ const App: React.FC = () => {
     }));
   };
 
+  
   useEffect(() => {
     const handleKeyDown = async (event: KeyboardEvent) => {
-      if (["h", "j", "k", "l", "d", " ", "Escape", "e", "Enter"].includes(event.key)) {
+      if (["h", "j", "k", "l", "d", " ", "Escape", "e", "Enter", "p"].includes(event.key)) {
         event.preventDefault(); // Prevent default behavior
         if (event.key === "Escape") {
           setWaitingForCommand(false);
@@ -62,9 +63,13 @@ const App: React.FC = () => {
               name: path, 
             })
 
+            console.log('resopnse->');
             // parse json
-            console.log('response', JSON.parse(response as string));
-            setTree(JSON.parse(response as string).splice(0, 1));
+            console.log([JSON.parse(response as string)]);
+            // setTree(JSON.parse(response as string).splice(0, 1));
+            setTree([JSON.parse(response as string)]);
+
+            setSelectedIndex(0);
           }
           return
         }
@@ -83,6 +88,14 @@ const App: React.FC = () => {
           if (currentItem.type === "directory") {
             toggleDirectory(currentItem.uniqueIndex);
           }
+        } else if (event.key === "p") {
+          const currentItem = flattenedTree[selectedIndex];
+          const getFullpath = currentItem?.full_path;
+          if (currentItem.type === "directory") {
+            return;
+          }
+
+          console.log('haha', getFullpath);
         }
       }
     };
@@ -108,7 +121,6 @@ const App: React.FC = () => {
         item.name = name;
       }
 
-
       return (
         <div key={uniqueIndex}>
           {item.type === "directory" ? (
@@ -120,7 +132,7 @@ const App: React.FC = () => {
                 cursor: "pointer",
               }}
             >
-            { !isOpen ? "📁" : "📂" } {item.name} 
+            { !isOpen ? "📁" : "📂" } {item.name}
               {/* Directory icon and open/close arrow */}
             </div>
           ) : (
@@ -132,6 +144,7 @@ const App: React.FC = () => {
               }}
             >
               📄 {item.name}
+              {/* File icon */}
             </div>
           )}
           {isOpen && item.contents && renderTree(item.contents, uniqueIndex + ".")}
