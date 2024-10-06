@@ -95,6 +95,9 @@ const App: React.FC = () => {
             return;
           }
 
+          await invoke("nvr_remote_open", {
+            path: getFullpath,
+          })
           console.log('haha', getFullpath);
         }
       }

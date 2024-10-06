@@ -36,7 +36,7 @@ fn build_tree(path: &Path, full_path: String) -> serde_json::Value {
     })
 }
 
-fn example(path: &str) -> String {
+fn generate(path: &str) -> String {
     let path = Path::new(path);
     let full_path = path.display().to_string(); // Get the full path
 
@@ -48,24 +48,9 @@ fn example(path: &str) -> String {
 }
 
 fn load_json_data(path: &str) -> String {
-    let output = Command::new("tree")
-        .arg("-J")
-        .arg(path)
-        .arg("-I")
-        .arg("target")
-        .output()
-        .expect("failed to execute process");
-
-    let result_example = example(path);
+    let result_example = generate(path);
     println!("result_example: {}", result_example);
     return result_example;
-
-
-    //     let s = String::from_utf8_lossy(&output.stdout);
-    //     return s.to_string();
-    // }
-
-    // return "".to_string();
 }
 
 //
@@ -75,12 +60,22 @@ fn greet(name: &str) -> String {
     load_json_data(name)
 }
 
+#[tauri::command]
+fn nvr_remote_open(path: String) -> (){
+    // nvr --socket ./nvimsocket --remote ./index.html
+    println!("nvr_remote_open: {}", path);
+    Command::new("nvr")
+        .arg("--remote")
+        .arg(path)
+        .spawn()
+        .expect("nvr command failed to start");
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![nvr_remote_open, greet])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
